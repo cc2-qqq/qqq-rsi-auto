@@ -1,3 +1,4 @@
+import os  # ✅ os 모듈 추가
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd

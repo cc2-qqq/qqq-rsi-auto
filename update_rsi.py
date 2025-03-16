@@ -58,15 +58,15 @@ def determine_mode(rsi_series):
 
 qqq["Mode"] = determine_mode(qqq["RSI"].fillna(50))
 
-# ✅ Google Sheets 업데이트 (🚀 헤더 문제 해결)
+# ✅ Google Sheets 업데이트 (🚀 헤더 문제 해결 및 NaN 방지)
 worksheet.clear()
 
 # 🔹 인덱스 이름이 None이면 "Date"로 설정
 index_name = qqq.index.name if qqq.index.name else "Date"
 header = [index_name] + list(qqq.columns)  # 컬럼 리스트 변환
 
-# 🔹 MultiIndex 제거 후 문자열 변환
-data = qqq.reset_index().astype(str).values.tolist()
+# 🔹 MultiIndex 제거 후 NaN 값을 빈 문자열로 변환 후 문자열 변환
+data = qqq.reset_index().fillna("").astype(str).values.tolist()
 
 # ✅ 최종 업데이트
 worksheet.update([header] + data)

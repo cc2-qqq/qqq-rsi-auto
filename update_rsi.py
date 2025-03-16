@@ -58,10 +58,15 @@ def determine_mode(rsi_series):
 
 qqq["Mode"] = determine_mode(qqq["RSI"].fillna(50))
 
-# ✅ Google Sheets 업데이트 (🚀 MultiIndex 오류 해결 + 헤더 자동 추가)
+# ✅ Google Sheets 업데이트 (🚀 헤더 문제 해결)
 worksheet.clear()
-header = [qqq.index.name] + qqq.columns.tolist()  # 헤더에 인덱스 이름 포함
-data = qqq.reset_index(drop=True).astype(str).values.tolist()  # MultiIndex 제거 후 문자열 변환
+
+# 🔹 인덱스 이름이 None이면 "Date"로 설정
+index_name = qqq.index.name if qqq.index.name else "Date"
+header = [index_name] + qqq.columns.tolist()
+
+# 🔹 MultiIndex 제거 후 문자열 변환
+data = qqq.reset_index().astype(str).values.tolist()
 
 worksheet.update([header] + data)
 

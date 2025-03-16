@@ -58,8 +58,8 @@ def determine_mode(rsi_series):
 
 qqq["Mode"] = determine_mode(qqq["RSI"].fillna(50))
 
-# ✅ Google Sheets 업데이트
+# ✅ Google Sheets 업데이트 (🚀 JSON 오류 해결)
 worksheet.clear()
-worksheet.update([qqq.columns.values.tolist()] + qqq.reset_index().values.tolist())
+worksheet.update([qqq.columns.astype(str).values.tolist()] + qqq.reset_index().astype(str).values.tolist())
 
 print("✅ Google Sheets 업데이트 완료!")

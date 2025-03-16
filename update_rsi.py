@@ -37,7 +37,7 @@ def calculate_rsi(series, period=14):
     rsi = 100 - (100 / (1 + rs))
     return rsi
 
-qqq["RSI"] = calculate_rsi(qqq["Close"])
+qqq["RSI"] = calculate_rsi(qqq["Close"]).fillna(50)  # NaN 값을 50으로 대체
 
 # "진입" / "이탈" 모드 판별 함수
 def determine_mode(rsi_series):
@@ -45,8 +45,8 @@ def determine_mode(rsi_series):
     current_mode = "보류"
 
     for i in range(2, len(rsi_series)):
-        prev_prev_rsi = rsi_series[i - 2]
-        prev_rsi = rsi_series[i - 1]
+        prev_prev_rsi = rsi_series.iloc[i - 2]  # iloc 사용하여 정확한 값 가져오기
+        prev_rsi = rsi_series.iloc[i - 1]
 
         if prev_prev_rsi > 65 and prev_rsi < prev_prev_rsi:
             current_mode = "이탈"
@@ -55,18 +55,17 @@ def determine_mode(rsi_series):
 
         modes.append(current_mode)
 
-    return ["보류", "진입", "이탈"] + modes
+    return ["보류", "진입"] + modes[: len(rsi_series) - 2]  # 길이 조정
 
-qqq["Mode"] = determine_mode(qqq["RSI"].fillna(50))
+qqq["Mode"] = determine_mode(qqq["RSI"])
 
 # Google Sheets에 데이터 업로드
 worksheet.clear()
 
 index_name = qqq.index.name if qqq.index.name else "Date"
 header = [index_name] + list(qqq.columns)
-data = qqq.reset_index().fillna("N/A").astype(str)
+data = qqq.reset_index().fillna("N/A").astype(str)  # NaN 방지
 
-# ✨ 여기서 수정! ✨
 worksheet.update([header] + data.values.tolist())
 
 print("✅ Google Sheets 업데이트 완료!")

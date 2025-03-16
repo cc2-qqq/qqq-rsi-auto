@@ -54,10 +54,12 @@ def determine_mode(rsi_series):
             current_mode = "매도"
         elif prev_prev_rsi < 30 and prev_rsi >= 50:
             current_mode = "매수"
+        else:
+            current_mode = "-"
 
         modes.append(current_mode)
 
-    return [""] * 2 + modes  # 처음 두 개의 값은 빈 값
+    return ["-"] * 2 + modes  # 처음 두 개의 값은 빈 값 대신 "-" 추가
 
 qqq["Mode"] = determine_mode(qqq["RSI"].fillna(50))
 
@@ -68,10 +70,13 @@ worksheet.clear()  # 기존 데이터 삭제
 index_name = "Date" if qqq.index.name is None else qqq.index.name
 header = [index_name] + list(qqq.columns)
 
-# 데이터를 문자열로 변환하여 리스트 형태로 저장
-data = qqq.reset_index().fillna("N/A").astype(str).values.tolist()
+# 모든 데이터를 문자열로 변환 & 빈 값 "-"로 채우기
+data = qqq.reset_index().fillna("-").astype(str).values.tolist()
 
-# 헤더와 데이터를 업데이트
-worksheet.update([header] + data)
+# Google Sheets에 업데이트 (빈 값 없는지 한 번 더 확인)
+if all(len(row) == len(header) for row in data):  # 데이터 길이가 맞는지 확인
+    worksheet.update([header] + data)
+    print("✅ Google Sheets 데이터 업데이트 완료!")
+else:
+    print("❌ 데이터 길이 불일치 오류 발생!")
 
-print("✅ Google Sheets 데이터 업데이트 완료!")

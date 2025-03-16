@@ -65,10 +65,19 @@ worksheet.clear()
 index_name = qqq.index.name if qqq.index.name else "Date"
 header = [index_name] + list(qqq.columns)  # 컬럼 리스트 변환
 
-# 🔹 MultiIndex 제거 후 NaN 값을 "N/A"로 변환 후 문자열 변환
+# 🔹 MultiIndex 제거 후 NaN 값을 "N/A"로 변환 후 문자열 변환 (JSON 오류 방지)
 data = qqq.reset_index().fillna("N/A").astype(str).values.tolist()
 
+# ✅ 🚨 추가적인 방어 코드: Google Sheets가 허용하지 않는 값 필터링
+def sanitize_data(data_list):
+    """ Google Sheets에서 허용하지 않는 값 제거 """
+    sanitized = []
+    for row in data_list:
+        cleaned_row = [str(cell) if cell not in [None, "", [], {}] else "N/A" for cell in row]
+        sanitized.append(cleaned_row)
+    return sanitized
+
 # ✅ 최종 업데이트
-worksheet.update([header] + data)
+worksheet.update([header] + sanitize_data(data))
 
 print("✅ Google Sheets 업데이트 완료!")

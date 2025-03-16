@@ -65,8 +65,8 @@ worksheet.clear()
 index_name = qqq.index.name if qqq.index.name else "Date"
 header = [index_name] + list(qqq.columns)  # 컬럼 리스트 변환
 
-# 🔹 MultiIndex 제거 후 NaN 값을 빈 문자열로 변환 후 문자열 변환
-data = qqq.reset_index().fillna("").astype(str).values.tolist()
+# 🔹 MultiIndex 제거 후 NaN 값을 "N/A"로 변환 후 문자열 변환
+data = qqq.reset_index().fillna("N/A").astype(str).values.tolist()
 
 # ✅ 최종 업데이트
 worksheet.update([header] + data)

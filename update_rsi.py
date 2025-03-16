@@ -44,7 +44,7 @@ qqq["RSI"] = calculate_rsi(qqq["Close"])
 # 매매 시그널 모드 계산 함수
 def determine_mode(rsi_series):
     modes = []
-    current_mode = ""
+    current_mode = "-"
 
     for i in range(2, len(rsi_series)):
         prev_prev_rsi = rsi_series.iloc[i - 2]
@@ -63,20 +63,21 @@ def determine_mode(rsi_series):
 
 qqq["Mode"] = determine_mode(qqq["RSI"].fillna(50))
 
-# Google Sheets 업데이트
-worksheet.clear()  # 기존 데이터 삭제
-
-# 데이터 프레임을 Google Sheets 형식으로 변환
+# Google Sheets에 업데이트할 데이터 준비
 index_name = "Date" if qqq.index.name is None else qqq.index.name
-header = [index_name] + list(qqq.columns)
-
-# 모든 데이터를 문자열로 변환 & 빈 값 "-"로 채우기
+header = [index_name, "Close", "RSI", "Mode"]
 data = qqq.reset_index().fillna("-").astype(str).values.tolist()
 
-# Google Sheets에 업데이트 (빈 값 없는지 한 번 더 확인)
-if all(len(row) == len(header) for row in data):  # 데이터 길이가 맞는지 확인
-    worksheet.update([header] + data)
-    print("✅ Google Sheets 데이터 업데이트 완료!")
-else:
-    print("❌ 데이터 길이 불일치 오류 발생!")
+# 🟢 헤더가 없으면 자동 추가
+existing_header = worksheet.row_values(1)
+if not existing_header:
+    worksheet.append_row(header)
 
+# 🟢 기존 데이터 삭제 후 한 줄씩 추가
+worksheet.clear()
+worksheet.append_row(header)  # 다시 헤더 추가
+
+for row in data:
+    worksheet.append_row(row)
+
+print("✅ Google Sheets 데이터 업데이트 완료!")

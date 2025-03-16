@@ -1,6 +1,7 @@
 name: Update RSI Data
 
 on:
+  workflow_dispatch:  # ✅ 수동 실행 추가
   schedule:
     - cron: "0 5 * * 0"  # 매주 일요일 UTC 5:00 = 한국시간 14:00
 

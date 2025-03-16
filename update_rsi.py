@@ -58,8 +58,11 @@ def determine_mode(rsi_series):
 
 qqq["Mode"] = determine_mode(qqq["RSI"].fillna(50))
 
-# ✅ Google Sheets 업데이트 (🚀 JSON 오류 해결)
+# ✅ Google Sheets 업데이트 (🚀 MultiIndex 오류 해결 + 헤더 자동 추가)
 worksheet.clear()
-worksheet.update([qqq.columns.astype(str).values.tolist()] + qqq.reset_index().astype(str).values.tolist())
+header = [qqq.index.name] + qqq.columns.tolist()  # 헤더에 인덱스 이름 포함
+data = qqq.reset_index(drop=True).astype(str).values.tolist()  # MultiIndex 제거 후 문자열 변환
+
+worksheet.update([header] + data)
 
 print("✅ Google Sheets 업데이트 완료!")
